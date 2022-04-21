@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { bool, func, instanceOf, number, object, objectOf, oneOf, string } from 'prop-types'
-import { differenceInDays, isSameDay, isAfter, isBefore, startOfMonth, startOfDay } from 'date-fns'
+import { differenceInDays, isSameDay, isAfter, isBefore, startOfMonth, startOfDay, addDays } from 'date-fns'
 import { isRangeLengthValid, isSelectable, mergeModifiers, setTime } from './utils'
 import { START_DATE, END_DATE } from './constants'
 import useControllableState from './useControllableState'
@@ -77,7 +77,7 @@ export default function DateRangePickerCalendar({
         endDate && !isRangeLengthValid({ startDate: date, endDate }, { minimumLength, maximumLength })
 
       if (invalidEndDate) {
-        onEndDateChange(null)
+        onEndDateChange(endDate ? setTime(addDays(date, 1), endDate) : addDays(date, 1))
         onStartDateChange(startDate ? setTime(date, startDate) : date)
         onFocusChange(END_DATE)
       } else {
@@ -89,7 +89,7 @@ export default function DateRangePickerCalendar({
         startDate && !isRangeLengthValid({ startDate, endDate: date }, { minimumLength, maximumLength })
 
       if (invalidStartDate) {
-        onEndDateChange(null)
+        onEndDateChange(endDate ? setTime(addDays(date, 1), endDate) : addDays(date, 1))
         onStartDateChange(startDate ? setTime(date, startDate) : date)
         onFocusChange(END_DATE)
       } else {

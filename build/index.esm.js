@@ -1,6 +1,32 @@
 import React, { useRef, useReducer, useLayoutEffect, useEffect, useState } from 'react';
 import { instanceOf, number, object, objectOf, bool, string, func, oneOf, node } from 'prop-types';
-import { getDate, isToday, format, isSameMonth, getYear, startOfMonth, subMonths, addMonths, startOfWeek, endOfWeek, addWeeks, endOfMonth, differenceInCalendarWeeks, differenceInCalendarMonths, isAfter, isBefore, eachDayOfInterval, lightFormat, startOfDay, differenceInDays, set, isSameDay, isValid, parse } from 'date-fns';
+import { getDate, isToday, format, isSameMonth, getYear, startOfMonth, subMonths, addMonths, startOfWeek, endOfWeek, addWeeks, endOfMonth, differenceInCalendarWeeks, differenceInCalendarMonths, isAfter, isBefore, eachDayOfInterval, lightFormat, startOfDay, differenceInDays, set, isSameDay, addDays, isValid, parse } from 'date-fns';
+
+function ownKeys(object, enumerableOnly) {
+  var keys = Object.keys(object);
+
+  if (Object.getOwnPropertySymbols) {
+    var symbols = Object.getOwnPropertySymbols(object);
+    enumerableOnly && (symbols = symbols.filter(function (sym) {
+      return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+    })), keys.push.apply(keys, symbols);
+  }
+
+  return keys;
+}
+
+function _objectSpread2(target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = null != arguments[i] ? arguments[i] : {};
+    i % 2 ? ownKeys(Object(source), !0).forEach(function (key) {
+      _defineProperty(target, key, source[key]);
+    }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) {
+      Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+    });
+  }
+
+  return target;
+}
 
 function _defineProperty(obj, key, value) {
   if (key in obj) {
@@ -17,40 +43,6 @@ function _defineProperty(obj, key, value) {
   return obj;
 }
 
-function ownKeys(object, enumerableOnly) {
-  var keys = Object.keys(object);
-
-  if (Object.getOwnPropertySymbols) {
-    var symbols = Object.getOwnPropertySymbols(object);
-    if (enumerableOnly) symbols = symbols.filter(function (sym) {
-      return Object.getOwnPropertyDescriptor(object, sym).enumerable;
-    });
-    keys.push.apply(keys, symbols);
-  }
-
-  return keys;
-}
-
-function _objectSpread2(target) {
-  for (var i = 1; i < arguments.length; i++) {
-    var source = arguments[i] != null ? arguments[i] : {};
-
-    if (i % 2) {
-      ownKeys(Object(source), true).forEach(function (key) {
-        _defineProperty(target, key, source[key]);
-      });
-    } else if (Object.getOwnPropertyDescriptors) {
-      Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
-    } else {
-      ownKeys(Object(source)).forEach(function (key) {
-        Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
-      });
-    }
-  }
-
-  return target;
-}
-
 function _slicedToArray(arr, i) {
   return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest();
 }
@@ -60,14 +52,17 @@ function _arrayWithHoles(arr) {
 }
 
 function _iterableToArrayLimit(arr, i) {
-  if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return;
+  var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"];
+
+  if (_i == null) return;
   var _arr = [];
   var _n = true;
   var _d = false;
-  var _e = undefined;
+
+  var _s, _e;
 
   try {
-    for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+    for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) {
       _arr.push(_s.value);
 
       if (i && _arr.length === i) break;
@@ -113,7 +108,7 @@ function createCommonjsModule(fn, module) {
 
 var classnames = createCommonjsModule(function (module) {
 /*!
-  Copyright (c) 2017 Jed Watson.
+  Copyright (c) 2018 Jed Watson.
   Licensed under the MIT License (MIT), see
   http://jedwatson.github.io/classnames
 */
@@ -123,7 +118,7 @@ var classnames = createCommonjsModule(function (module) {
 
 	var hasOwn = {}.hasOwnProperty;
 
-	function classNames () {
+	function classNames() {
 		var classes = [];
 
 		for (var i = 0; i < arguments.length; i++) {
@@ -134,16 +129,22 @@ var classnames = createCommonjsModule(function (module) {
 
 			if (argType === 'string' || argType === 'number') {
 				classes.push(arg);
-			} else if (Array.isArray(arg) && arg.length) {
-				var inner = classNames.apply(null, arg);
-				if (inner) {
-					classes.push(inner);
+			} else if (Array.isArray(arg)) {
+				if (arg.length) {
+					var inner = classNames.apply(null, arg);
+					if (inner) {
+						classes.push(inner);
+					}
 				}
 			} else if (argType === 'object') {
-				for (var key in arg) {
-					if (hasOwn.call(arg, key) && arg[key]) {
-						classes.push(key);
+				if (arg.toString === Object.prototype.toString) {
+					for (var key in arg) {
+						if (hasOwn.call(arg, key) && arg[key]) {
+							classes.push(key);
+						}
 					}
+				} else {
+					classes.push(arg.toString());
 				}
 			}
 		}
@@ -945,7 +946,7 @@ function DateRangePickerCalendar(_ref) {
       });
 
       if (invalidEndDate) {
-        onEndDateChange(null);
+        onEndDateChange(endDate ? setTime(addDays(date, 1), endDate) : addDays(date, 1));
         onStartDateChange(startDate ? setTime(date, startDate) : date);
         onFocusChange(END_DATE);
       } else {
@@ -962,7 +963,7 @@ function DateRangePickerCalendar(_ref) {
       });
 
       if (invalidStartDate) {
-        onEndDateChange(null);
+        onEndDateChange(endDate ? setTime(addDays(date, 1), endDate) : addDays(date, 1));
         onStartDateChange(startDate ? setTime(date, startDate) : date);
         onFocusChange(END_DATE);
       } else {
@@ -1013,7 +1014,7 @@ DateRangePickerCalendar.defaultProps = {
   maximumLength: null
 };
 
-var Popover = React.forwardRef(function (_ref, ref) {
+var Popover = /*#__PURE__*/React.forwardRef(function (_ref, ref) {
   var children = _ref.children,
       open = _ref.open;
   return /*#__PURE__*/React.createElement("div", {
